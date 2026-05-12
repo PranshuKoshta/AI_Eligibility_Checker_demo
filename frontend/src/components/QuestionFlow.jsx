@@ -1,7 +1,7 @@
 import { useState } from "react";
 import questions from "../data/questions";
 import ResultCard from "./ResultCard";
-import { evaluateAnswers } from "../services/api";
+import { evaluateAnswers, getLiveScores } from "../services/api";
 
 function QuestionFlow() {
 
@@ -32,7 +32,7 @@ function QuestionFlow() {
     try {
 
     const liveResult =
-      await evaluateAnswers(updatedAnswers);
+      await getLiveScores(updatedAnswers);
 
     setLiveScores({
       ausbildung_score:

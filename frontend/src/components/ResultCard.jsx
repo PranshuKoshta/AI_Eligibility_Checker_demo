@@ -9,6 +9,10 @@ function ResultCard({ result }) {
 
       <p>{result.recommended_program}</p>
 
+      <h2>AI Assessment</h2>
+
+      <p>{result.ai_summary}</p>
+
       <h2>Profile Fit Status</h2>
 
       <p>{result.profile_fit_status}</p>

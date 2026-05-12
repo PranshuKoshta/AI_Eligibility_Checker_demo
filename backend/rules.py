@@ -29,7 +29,7 @@ def evaluate_candidate(answers):
     else:
 
         recommended_program = (
-            "Germany Skilled Career Pathway"
+            "Germany Ausbildung Program"
         )
 
         final_score = ausbildung["score"]
@@ -50,6 +50,7 @@ def evaluate_candidate(answers):
 
     else:
         profile_fit = "Needs Improvement"
+    
 
     print("\n===== FINAL EVALUATION =====")
 
