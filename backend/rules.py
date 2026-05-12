@@ -1,127 +1,82 @@
+from scoring import (
+    calculate_ausbildung_score,
+    calculate_healthcare_score
+)
+
+
 def evaluate_candidate(answers):
 
-    strengths = []
+    ausbildung = calculate_ausbildung_score(answers)
 
-    weaknesses = []
-
-    recommended_program = None
-
-    background = answers.get("background")
-
-    german_level = answers.get("german_level")
-
-    experience = answers.get("experience")
-
-    age = answers.get("age")
-
-    education = answers.get("education")
-
-    willingness = answers.get("willingness")
-
-    healthcare_license = answers.get(
-        "healthcare_license"
-    )
+    healthcare = calculate_healthcare_score(answers)
 
     # ----------------------------
-    # AGE ANALYSIS
+    # Determine recommendation
     # ----------------------------
 
-    if age in ["18–23", "24–28"]:
-        strengths.append(
-            "Strong age profile for German programs"
+    if healthcare["score"] >= ausbildung["score"]:
+
+        recommended_program = (
+            "German Healthcare Program"
         )
 
-    elif age == "38 or above":
-        weaknesses.append(
-            "Age may reduce eligibility for some pathways"
+        final_score = healthcare["score"]
+
+        strengths = healthcare["strengths"]
+
+        weaknesses = healthcare["weaknesses"]
+
+    else:
+
+        recommended_program = (
+            "Germany Skilled Career Pathway"
         )
 
-    # ----------------------------
-    # EDUCATION ANALYSIS
-    # ----------------------------
+        final_score = ausbildung["score"]
 
-    if education in [
-        "Diploma / ITI",
-        "Bachelor’s Degree"
-    ]:
-        strengths.append(
-            "Educational background aligns well with German pathways"
-        )
+        strengths = ausbildung["strengths"]
 
-    if education == "Healthcare Degree (GNM, BSc Nursing, Physiotherapy, etc.)":
-        strengths.append(
-            "Healthcare qualification is highly valuable"
-        )
+        weaknesses = ausbildung["weaknesses"]
 
     # ----------------------------
-    # LANGUAGE ANALYSIS
+    # Profile fit status
     # ----------------------------
 
-    if german_level in ["B1", "B2 or above"]:
-        strengths.append(
-            "Strong German language readiness"
-        )
+    if final_score >= 75:
+        profile_fit = "Strong Candidate"
 
-    elif german_level == "No German knowledge":
-        weaknesses.append(
-            "German language preparation is required"
-        )
+    elif final_score >= 55:
+        profile_fit = "Potential / Pipeline Candidate"
 
-    # ----------------------------
-    # WILLINGNESS
-    # ----------------------------
+    else:
+        profile_fit = "Needs Improvement"
 
-    if willingness == "No":
-        weaknesses.append(
-            "Lack of willingness to learn German may impact eligibility"
-        )
+    print("\n===== FINAL EVALUATION =====")
 
-    # ----------------------------
-    # HEALTHCARE PATHWAY
-    # ----------------------------
+    print("Ausbildung Score:", ausbildung["score"])
 
-    if background == "Healthcare (Nursing, Physiotherapy, Medical, etc.)":
+    print("Healthcare Score:", healthcare["score"])
 
-        if (
-            experience in [
-                "6 months to 1 year",
-                "1–3 years",
-                "More than 3 years"
-            ]
-            and healthcare_license in [
-                "Yes",
-                "Currently pursuing"
-            ]
-        ):
+    print("Recommended Program:", recommended_program)
 
-            recommended_program = (
-                "German Healthcare Program"
-            )
-
-            strengths.append(
-                "Healthcare experience improves program fit"
-            )
-
-        else:
-
-            weaknesses.append(
-                "Healthcare pathway typically requires relevant experience and certification"
-            )
-
-    # ----------------------------
-    # AUSBILDUNG PATHWAY
-    # ----------------------------
-
-    if not recommended_program:
-
-        recommended_program = "Germany Ausbildung"
-
-        strengths.append(
-            "Candidate may qualify for Ausbildung opportunities"
-        )
+    print("============================\n")
 
     return {
-        "recommended_program": recommended_program,
-        "strengths": strengths,
-        "weaknesses": weaknesses
+        "recommended_program":
+            recommended_program,
+
+        "profile_fit_status":
+            profile_fit,
+
+        "ausbildung_score":
+            ausbildung["score"],
+
+        "healthcare_score":
+            healthcare["score"],
+
+        "strengths":
+            strengths,
+
+        "weaknesses":
+            weaknesses
     }
