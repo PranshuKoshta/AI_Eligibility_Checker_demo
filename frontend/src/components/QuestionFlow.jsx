@@ -1,14 +1,21 @@
 import { useState } from "react";
 import questions from "../data/questions";
+import { evaluateAnswers } from "../services/api";
 
 function QuestionFlow() {
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [answers, setAnswers] = useState({});
 
+  const [result, setResult] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+
   const currentQuestion = questions[currentIndex];
 
-  function handleAnswer(option) {
+  async function handleAnswer(option) {
+
     const updatedAnswers = {
       ...answers,
       [currentQuestion.id]: option
@@ -19,6 +26,7 @@ function QuestionFlow() {
     let nextIndex = currentIndex + 1;
 
     while (nextIndex < questions.length) {
+
       const nextQuestion = questions[nextIndex];
 
       if (!nextQuestion.conditional) {
@@ -37,26 +45,69 @@ function QuestionFlow() {
       nextIndex++;
     }
 
-    setCurrentIndex(nextIndex);
+    if (nextIndex >= questions.length) {
+
+      setLoading(true);
+
+      try {
+
+        const backendResult =
+          await evaluateAnswers(updatedAnswers);
+
+        setResult(backendResult);
+
+      } catch (error) {
+
+        console.error(error);
+
+      } finally {
+
+        setLoading(false);
+      }
+
+    } else {
+
+      setCurrentIndex(nextIndex);
+    }
   }
 
-  if (currentIndex >= questions.length) {
+  if (loading) {
+    return <h2>Evaluating eligibility...</h2>;
+  }
+
+  if (result) {
     return (
       <div>
-        <h2>Completed</h2>
+        <h2>Recommended Program</h2>
 
-        <pre>
-          {JSON.stringify(answers, null, 2)}
-        </pre>
+        <p>{result.recommended_program}</p>
+
+        <h3>Strengths</h3>
+
+        <ul>
+          {result.strengths.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+
+        <h3>Weaknesses</h3>
+
+        <ul>
+          {result.weaknesses.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
       </div>
     );
   }
 
   return (
     <div>
+
       <h2>{currentQuestion.question}</h2>
 
       {currentQuestion.options.map((option) => (
+
         <button
           key={option}
           onClick={() => handleAnswer(option)}
@@ -70,7 +121,9 @@ function QuestionFlow() {
         >
           {option}
         </button>
+
       ))}
+
     </div>
   );
 }
